@@ -1,5 +1,8 @@
 const Path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -21,14 +24,31 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.js$/,
+                exclude: /(node_modules|bower_components)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            [
+                                '@babel/preset-env',
+                                {
+                                    'useBuiltIns':'usage'
+                                }
+                            ]
+                        ]
+                    }
+                }
+            },
+            {
                 test: /\.(css|scss)$/i,
                 use: [
-                    'style-loader', 
+                    'style-loader',
                     {
-                        loader:'css-loader',
-                        options:{
-                            modules:false,      // 是否开启样式作用域（动态变量名）
-                            importLoaders:2
+                        loader: 'css-loader',
+                        options: {
+                            modules: false,      // 是否开启样式作用域（动态变量名）
+                            importLoaders: 2
                         }
                     },
                     'sass-loader',
@@ -45,9 +65,22 @@ module.exports = {
             }
         ]
     },
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin({
+                sourceMap: true,
+                parallel: true
+            }),
+            new OptimizeCSSAssetsPlugin({})
+        ]
+    },
     plugins: [
+        new MiniCssExtractPlugin({
+            filename: '[name].[hash].css',
+            chunkFilename: '[id].[hash].css'
+        }),
         new HtmlWebpackPlugin({
-            title:'app',
+            title: 'app',
             template: './src/pages/app/index.html',
             filename: 'app.html',
             chunks: ['app'],
@@ -58,7 +91,7 @@ module.exports = {
             }
         }),
         new HtmlWebpackPlugin({
-            title:'home',
+            title: 'home',
             template: './src/pages/home/index.html',
             filename: 'home.html',
             chunks: ['home'],
