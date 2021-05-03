@@ -1,8 +1,5 @@
 const Path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -24,19 +21,13 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.m?js$/,
                 exclude: /(node_modules|bower_components)/,
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: [
-                            [
-                                '@babel/preset-env',
-                                {
-                                    'useBuiltIns':'usage'
-                                }
-                            ]
-                        ]
+                        presets: ['@babel/preset-env'],
+                        plugins: ['@babel/plugin-transform-runtime']
                     }
                 }
             },
@@ -53,7 +44,7 @@ module.exports = {
                     },
                     'sass-loader',
                     'postcss-loader'
-                ],
+                ]
             },
             {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -65,37 +56,24 @@ module.exports = {
             }
         ]
     },
-    optimization: {
-        minimizer: [
-            new UglifyJsPlugin({
-                sourceMap: true,
-                parallel: true
-            }),
-            new OptimizeCSSAssetsPlugin({})
-        ]
-    },
     plugins: [
-        new MiniCssExtractPlugin({
-            filename: '[name].[hash].css',
-            chunkFilename: '[id].[hash].css'
-        }),
         new HtmlWebpackPlugin({
-            title: 'app',
             template: './src/pages/app/index.html',
-            filename: 'app.html',
+            hash:true,
             chunks: ['app'],
-            inject: true,
+            title: 'app',
+            filename: 'app.html',
             minify: {
                 removeComments: true,
                 collapseWhitespace: true,
             }
         }),
         new HtmlWebpackPlugin({
-            title: 'home',
             template: './src/pages/home/index.html',
-            filename: 'home.html',
+            hash:true,
             chunks: ['home'],
-            inject: true,
+            title: 'home',
+            filename: 'home.html',
             minify: {
                 removeComments: true,
                 collapseWhitespace: true,
